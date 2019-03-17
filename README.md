@@ -1,1 +1,5 @@
-LSN_exercises_ delivery
+*********LSN_exercises_ delivery*********
+@author Giovanni Ferrami
+@e-mail g.ferrami@gmail.com
+
+Open the .ipynb to see the commented solution of the assigned exercises
