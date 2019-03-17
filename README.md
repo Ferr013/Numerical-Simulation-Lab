@@ -1,4 +1,4 @@
-*********LSN_exercises_ delivery*********
+*********LSN_Exercises_ Delivery*********
 @author Giovanni Ferrami
 @e-mail g.ferrami@gmail.com
 
