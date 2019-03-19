@@ -47,7 +47,7 @@ int main (int argc, char *argv[]){
    }
 */	
 //es1.3 from here ---------------------------------------------------------
-	double l=1.; double d=1.3;
+	double l=1.; double d=1.5;
    int M=500000; int N=100; int L=M/N;
 	double ave[N],av2[N],sum_prog[N],su2_prog[N],err_prog[N];
 	ofstream out1("es1_3.dat");	
@@ -57,12 +57,15 @@ int main (int argc, char *argv[]){
 	}
 
 	for(int i=0; i<N;i++){
-		double hits = 0;
+		int hits = 0;
 		for(int j=0; j<L; j++){
-         double angle = atan(rnd.Rannyu()/rnd.Rannyu());
-			if(d*rnd.Rannyu()-l*sin(angle)<0) hits+=1.;
+         double x = rnd.Rannyu();double y = rnd.Rannyu();
+			if((x*x+y*y)<1){
+            if(d*rnd.Rannyu()<(l*x/sqrt(x*x+y*y))) hits++; 
+         }
+         else j--;
 		}
-		ave[i]=2*l*double(L)/(hits*d);
+		ave[i]=2.*l*double(L)/(double(hits)*d);
 		av2[i]=ave[i]*ave[i];	
 	}
 
@@ -78,8 +81,6 @@ int main (int argc, char *argv[]){
 		out1 <<(i+1)*L<<" "<< sum_prog[i] <<" "<< err_prog[i] << endl;
 	}
 	out1.close();
-
-
    rnd.SaveSeed();
    return 0;
 }
