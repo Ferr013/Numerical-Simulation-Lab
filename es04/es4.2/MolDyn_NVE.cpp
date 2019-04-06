@@ -16,20 +16,69 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 using namespace std;
 
 int start_from_previous = 0;
+int counter = 0;
+const int iblock = 30;
 
 int main(){ 
   Input();             //Inizialization
+  
   int nconf = 1;
   for(int istep=1; istep <= nstep; ++istep){
      Move();           //Move particles with Verlet algorithm
      if(istep%iprint == 0) cout << "Number of time-steps: " << istep << endl;
      if(istep%10 == 0){
-        //cout << "Number of measures: " << istep << endl;
         Measure();     //Properties measurement
         ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
         nconf += 1;
+        if(istep%(m_block*10)==0){
+          //cout << "temp measured" << sum_temp/(double)m_block << endl;
+          //cout << "Block finished at " << istep<< endl;
+          block_epot[counter]=sum_pot/(double)m_block;
+          block_ekin[counter]=sum_kin/(double)m_block;
+          block_etot[counter]=sum_etot/(double)m_block;
+          block_temp[counter]=sum_temp/(double)m_block;
+          counter++;
+          sum_pot=0;sum_kin=0;sum_etot=0;sum_temp=0;
+        }
      }
   }
+  ofstream BPot("ave_epot.dat");	
+	ofstream BKin("ave_ekin.dat");
+	ofstream BTemp("ave_temp.dat");
+	ofstream BTot("ave_etot.dat");
+  for(int i=0;i<iblock;i++){
+	    b2_epot[i]=block_epot[i]*block_epot[i];
+	    b2_ekin[i]=block_ekin[i]*block_ekin[i];
+	    b2_etot[i]=block_etot[i]*block_etot[i];
+	    b2_temp[i]=block_temp[i]*block_temp[i];
+      for(int j=0;j<(i+1);j++){
+        ave_epot[i]+=block_epot[j];
+        av2_epot[i]+=b2_epot[j];
+        ave_ekin[i]+=block_ekin[j];
+        av2_ekin[i]+=b2_ekin[j];
+        ave_etot[i]+=block_etot[j];
+        av2_etot[i]+=b2_etot[j];
+        ave_temp[i]+=block_temp[j];
+        av2_temp[i]+=b2_temp[j];
+      }
+      ave_epot[i]= ave_epot[i]/double(i+1);
+      av2_epot[i]= av2_epot[i]/double(i+1);
+      ave_ekin[i]= ave_ekin[i]/double(i+1);
+      av2_ekin[i]= av2_ekin[i]/double(i+1);
+      ave_temp[i]= ave_temp[i]/double(i+1);
+      av2_temp[i]= av2_temp[i]/double(i+1);
+      ave_etot[i]= ave_etot[i]/double(i+1);
+      av2_etot[i]= av2_etot[i]/double(i+1);
+      err_epot[i]=Error(ave_epot[i], av2_epot[i],i);
+      err_ekin[i]=Error(ave_ekin[i], av2_ekin[i],i);
+      err_etot[i]=Error(ave_etot[i], av2_etot[i],i);
+      err_temp[i]=Error(ave_temp[i], av2_temp[i],i);
+      BPot <<(i+1)<<" "<< ave_epot[i] <<" "<< err_epot[i] << endl;
+      BKin <<(i+1)<<" "<< ave_ekin[i] <<" "<< err_ekin[i] << endl;
+      BTot <<(i+1)<<" "<< ave_etot[i] <<" "<< err_etot[i] << endl;
+      BTemp <<(i+1)<<" "<< ave_temp[i] <<" "<< err_temp[i] << endl;
+    }
+  BPot.close();BKin.close();BTot.close();BTemp.close();
   ConfFinal();         //Write final configuration to restart
   ConfPrevious();      //Write the second to last position reached by the simulation
 
@@ -297,6 +346,13 @@ void Measure(){ //Properties measurement
     Temp << stima_temp << endl;
     Etot << stima_etot << endl;
 
+    sum_pot+=stima_pot;
+    sum_kin+=stima_kin;
+    sum_etot+=stima_etot;
+    sum_temp+=stima_temp;
+    //cout << "temp " << stima_temp<< endl;
+    //cout << "temp_sum " << sum_temp<< endl;
+
     Epot.close();
     Ekin.close();
     Temp.close();
@@ -347,6 +403,16 @@ void ConfXYZ(int nconf){ //Write configuration in .xyz format
 
 double Pbc(double r){  //Algorithm for periodic boundary conditions with side L=box
     return r - box * rint(r/box);
+}
+
+double Error(double av, double av2, int n){
+	double err =0;
+	if(n==0)return 0.;
+	else 
+	{
+		err=sqrt(1./n*(av2-av*av));
+	}
+	return err;
 }
 /****************************************************************
 *****************************************************************
