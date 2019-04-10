@@ -16,20 +16,78 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 using namespace std;
 
 int start_from_previous = 0;
+int counter = 0;
+const int iblock = 30;
 
 int main(){ 
   Input();             //Inizialization
+  
   int nconf = 1;
   for(int istep=1; istep <= nstep; ++istep){
      Move();           //Move particles with Verlet algorithm
      if(istep%iprint == 0) cout << "Number of time-steps: " << istep << endl;
      if(istep%10 == 0){
-        //cout << "Number of measures: " << istep << endl;
         Measure();     //Properties measurement
         ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
         nconf += 1;
+        if(istep%(m_block*10)==0){
+          //cout << "temp measured" << sum_temp/(double)m_block << endl;
+          //cout << "Block finished at " << istep<< endl;
+          block_epot[counter]=sum_pot/(double)m_block;
+          block_ekin[counter]=sum_kin/(double)m_block;
+          block_etot[counter]=sum_etot/(double)m_block;
+          block_temp[counter]=sum_temp/(double)m_block;
+          block_press[counter]=sum_press/(double)m_block;
+          counter++;
+          sum_pot=0;sum_kin=0;sum_etot=0;sum_temp=0;sum_press=0;
+        }
      }
   }
+  ofstream BPot("ave_epot.dat");	
+	ofstream BKin("ave_ekin.dat");
+	ofstream BTemp("ave_temp.dat");
+	ofstream BTot("ave_etot.dat");
+  ofstream BPress("ave_press.dat");
+  for(int i=0;i<iblock;i++){
+	    b2_epot[i]=block_epot[i]*block_epot[i];
+	    b2_ekin[i]=block_ekin[i]*block_ekin[i];
+	    b2_etot[i]=block_etot[i]*block_etot[i];
+	    b2_temp[i]=block_temp[i]*block_temp[i];
+      b2_press[i]=block_press[i]*block_press[i];
+      for(int j=0;j<(i+1);j++){
+        ave_epot[i]+=block_epot[j];
+        av2_epot[i]+=b2_epot[j];
+        ave_ekin[i]+=block_ekin[j];
+        av2_ekin[i]+=b2_ekin[j];
+        ave_etot[i]+=block_etot[j];
+        av2_etot[i]+=b2_etot[j];
+        ave_temp[i]+=block_temp[j];
+        av2_temp[i]+=b2_temp[j];
+        ave_press[i]+=block_press[j];
+        av2_press[i]+=b2_press[j];
+      }
+      ave_epot[i]= ave_epot[i]/double(i+1);
+      av2_epot[i]= av2_epot[i]/double(i+1);
+      ave_ekin[i]= ave_ekin[i]/double(i+1);
+      av2_ekin[i]= av2_ekin[i]/double(i+1);
+      ave_temp[i]= ave_temp[i]/double(i+1);
+      av2_temp[i]= av2_temp[i]/double(i+1);
+      ave_etot[i]= ave_etot[i]/double(i+1);
+      av2_etot[i]= av2_etot[i]/double(i+1);
+      ave_press[i]= ave_press[i]/double(i+1);
+      av2_press[i]= av2_press[i]/double(i+1);
+      err_epot[i]=Error(ave_epot[i], av2_epot[i],i);
+      err_ekin[i]=Error(ave_ekin[i], av2_ekin[i],i);
+      err_etot[i]=Error(ave_etot[i], av2_etot[i],i);
+      err_temp[i]=Error(ave_temp[i], av2_temp[i],i);
+      err_press[i]=Error(ave_press[i], av2_press[i],i);
+      BPot <<(i+1)<<" "<< ave_epot[i] <<" "<< err_epot[i] << endl;
+      BKin <<(i+1)<<" "<< ave_ekin[i] <<" "<< err_ekin[i] << endl;
+      BTot <<(i+1)<<" "<< ave_etot[i] <<" "<< err_etot[i] << endl;
+      BTemp <<(i+1)<<" "<< ave_temp[i] <<" "<< err_temp[i] << endl;
+      BPress <<(i+1)<<" "<< ave_press[i] <<" "<< err_press[i] << endl;
+    }
+  BPot.close();BKin.close();BTot.close();BTemp.close();BPress.close();
   ConfFinal();         //Write final configuration to restart
   ConfPrevious();      //Write the second to last position reached by the simulation
 
@@ -252,17 +310,18 @@ double Force(int ip, int idir){ //Compute forces as -Grad_ip V(r)
 
 void Measure(){ //Properties measurement
   int bin;
-  double v, t, vij;
+  double v, t, vij, p, pij;
   double dx, dy, dz, dr;
-  ofstream Epot, Ekin, Etot, Temp;
+  ofstream Epot, Ekin, Etot, Temp, Press;
 
   Epot.open("output_epot.dat",ios::app);
   Ekin.open("output_ekin.dat",ios::app);
   Temp.open("output_temp.dat",ios::app);
   Etot.open("output_etot.dat",ios::app);
+  Press.open("output_press.dat",ios::app);
 
   v = 0.0; //reset observables
-  t = 0.0;
+  t = 0.0; p = 0.0;
 
 //cycle over pairs of particles
   for (int i=0; i<npart-1; ++i){
@@ -277,9 +336,10 @@ void Measure(){ //Properties measurement
 
      if(dr < rcut){
        vij = 4.0/pow(dr,12) - 4.0/pow(dr,6);
+       pij = (48.0/pow(dr,12) - 24.0/pow(dr,6));
 
-//Potential energy
-       v += vij;
+//Potential energy and pressure
+       v += vij; p += pij;
      }
     }          
   }
@@ -290,17 +350,28 @@ void Measure(){ //Properties measurement
     stima_pot = v/(double)npart; //Potential energy
     stima_kin = t/(double)npart; //Kinetic energy
     stima_temp = (2.0 / 3.0) * t/(double)npart; //Temperature
-    stima_etot = (t+v)/(double)npart; //Total enery
+    stima_etot = (t+v)/(double)npart; //Total energy
+    stima_press = rho*stima_temp + (1.0/(3*vol))*(v/(double)npart);
 
     Epot << stima_pot  << endl;
     Ekin << stima_kin  << endl;
     Temp << stima_temp << endl;
     Etot << stima_etot << endl;
+    Press << stima_press << endl;
+
+    sum_pot+=stima_pot;
+    sum_kin+=stima_kin;
+    sum_etot+=stima_etot;
+    sum_temp+=stima_temp;
+    sum_press+=stima_press;
+    //cout << "temp " << stima_temp<< endl;
+    //cout << "temp_sum " << sum_temp<< endl;
 
     Epot.close();
     Ekin.close();
     Temp.close();
     Etot.close();
+    Press.close();
 
     return;
 }
@@ -347,6 +418,16 @@ void ConfXYZ(int nconf){ //Write configuration in .xyz format
 
 double Pbc(double r){  //Algorithm for periodic boundary conditions with side L=box
     return r - box * rint(r/box);
+}
+
+double Error(double av, double av2, int n){
+	double err =0;
+	if(n==0)return 0.;
+	else 
+	{
+		err=sqrt(1./n*(av2-av*av));
+	}
+	return err;
 }
 /****************************************************************
 *****************************************************************
