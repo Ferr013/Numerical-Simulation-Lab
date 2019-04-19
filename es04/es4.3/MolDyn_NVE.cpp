@@ -351,7 +351,7 @@ void Measure(){ //Properties measurement
     stima_kin = t/(double)npart; //Kinetic energy
     stima_temp = (2.0 / 3.0) * t/(double)npart; //Temperature
     stima_etot = (t+v)/(double)npart; //Total energy
-    stima_press = rho*stima_temp + (1.0/(3*vol))*(v/(double)npart);
+    stima_press = rho*stima_temp + (1.0/(3*vol))*(p/(double)npart);
 
     Epot << stima_pot  << endl;
     Ekin << stima_kin  << endl;

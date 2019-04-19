@@ -18,7 +18,6 @@ using namespace std;
 int start_from_previous = 0;
 int counter = 0;
 const int iblock = 30;
-const double arg_rho = 0.34, arg_T0=120,arg_m=39.948;
 const double kb = 8.61673324*0.00001;
 
 int main(){ 
@@ -83,11 +82,11 @@ int main(){
       err_etot[i]=Error(ave_etot[i], av2_etot[i],i);
       err_temp[i]=Error(ave_temp[i], av2_temp[i],i);
       err_press[i]=Error(ave_press[i], av2_press[i],i);
-      BPot <<(i+1)<<" "<< ave_epot[i]/(arg_T0*kb) <<" "<< err_epot[i]/(arg_T0*kb) << endl;
-      BKin <<(i+1)<<" "<< ave_ekin[i]/(arg_T0*kb)  <<" "<< err_ekin[i]/(arg_T0*kb) << endl;
-      BTot <<(i+1)<<" "<< ave_etot[i]/(arg_T0*kb)  <<" "<< err_etot[i]/(arg_T0*kb) << endl;
-      BTemp <<(i+1)<<" "<< ave_temp[i]/(arg_T0)  <<" "<< err_temp[i]/(arg_T0) << endl;
-      BPress <<(i+1)<<" "<< (ave_press[i]/(arg_T0*kb))*pow(arg_rho,3)  <<" "<< (err_press[i]/(arg_T0*kb))*pow(arg_rho,3) << endl;
+      BPot <<(i+1)<<" "<< ave_epot[i] <<" "<< err_epot[i] << endl;
+      BKin <<(i+1)<<" "<< ave_ekin[i] <<" "<< err_ekin[i] << endl;
+      BTot <<(i+1)<<" "<< ave_etot[i] <<" "<< err_etot[i] << endl;
+      BTemp <<(i+1)<<" "<< ave_temp[i] <<" "<< err_temp[i]<< endl;
+      BPress <<(i+1)<<" "<< ave_press[i]  <<" "<< err_press[i] << endl;
     }
   BPot.close();BKin.close();BTot.close();BTemp.close();BPress.close();
   ConfFinal();         //Write final configuration to restart
@@ -353,7 +352,7 @@ void Measure(){ //Properties measurement
     stima_kin = t/(double)npart; //Kinetic energy
     stima_temp = (2.0 / 3.0) * t/(double)npart; //Temperature
     stima_etot = (t+v)/(double)npart; //Total energy
-    stima_press = rho*stima_temp + (1.0/(3*vol))*(v/(double)npart);
+    stima_press = rho*stima_temp + (1.0/(3*vol))*(p/(double)npart);
 
     Epot << stima_pot  << endl;
     Ekin << stima_kin  << endl;
