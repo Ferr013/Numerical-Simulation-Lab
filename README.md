@@ -20,10 +20,10 @@ Here's a list of the exercises with a brief comment on what they are about:
         Molecular Dynamics simulation with Verlet algorithm of a set of 100+ molecules interacting through a Lennard-Jones potential in periodic      boundary conditions.
         Implementing a thermal stabilization algorithm, step by step evaluation of kinetic and potential energies, temperature, pressure.
         Applying the simulation to Argon and Krypton in solid, liquid and gaseous phases, retrieving coherent phisical values for the observed quantities.
-        Molecular Dynamics simulation with Verlet algorithm of a set of 100+ molecules interacting through a Lennard-Jones potential in periodic      boundary conditions.
 - Ex05: 
         Metropolis algorithm. Evaluating hydrogenic probability distribution for 1S and 2P energy levels.
 - Ex06: 
+        1-D Ising model simulated through Metropolis and Gibbs sampling algorithms. Evaluating some termodynamic parameter confronting the two algos with the analitic solution.
 - Ex07: 
 - Ex08: 
 - Ex09: 
