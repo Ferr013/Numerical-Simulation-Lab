@@ -1,0 +1,19 @@
+4250
+900
+30
+100
+15
+5
+0.8
+0.1
+1
+
+    1 ReadInput >> randseed;
+    2 ReadInput >> dim;
+    3 ReadInput >> gene_length;
+    4 ReadInput >> num_generations;
+    5 ReadInput >> saved_per_generation;
+    6 ReadInput >> selection_exp;
+    7 ReadInput >> breeding_rate;
+    8 ReadInput >> mutation_rate;
+    9 ReadInput >> mode; //How the city are distributed on the map
