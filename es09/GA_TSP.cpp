@@ -21,16 +21,23 @@ double breeding_rate = 0.8; //METTERE IN FILE INPUT
 double mutation_rate = 0.1; //METTERE IN FILE INPUT
 int num_generations = 100; //METTERE IN FILE INPUT
 int mode = 0;
+vector<City> cities;
 
 int main(){
+    //cout << cities.size() << endl;
     Input(); //Inizialization
+    //cout << cities.size() << endl;
 
-    Population pop = Population(dim, gene_length, mode);
-    Population next_pop = Population(0, gene_length, mode);
+    Population pop = Population(dim, gene_length, &cities);
+    Population next_pop = Population(0, gene_length, &cities);
+
+    //pop.GetGene(0).Print();
 
     ofstream output, best, first;
-    output.open("evolution.dat");
-    first.open("first.gene");
+    if(mode == 0)output.open("evolution.dat");
+    if(mode == 1)output.open("evolution_sq.dat");
+    if(mode == 0)first.open("first.gene");
+    if(mode == 1)first.open("first_sq.gene");
     Gene g = pop.GetGene(0);
     for (uint i = 0; i < g.GetLength(); i++){    
         City c = g.GetElement(i);
@@ -74,7 +81,8 @@ int main(){
         //pop.Print();
     }
     output.close();
-    best.open("best.gene");
+    if(mode == 0)best.open("best.gene");
+    if(mode == 1)best.open("best_sq.gene");
     g = pop.GetGene(0);
     for (uint i = 0; i < g.GetLength(); i++){    
         City c = g.GetElement(i);
@@ -118,6 +126,22 @@ void Input(void)
     cout << "Breeding rate = " << breeding_rate << endl;
     cout << "Elite saved per generation = " << saved_per_generation << endl << endl;
     ReadInput.close();
+
+    ////////////////////////////////////////////////Create cities map
+    if(mode == 0){   //Cities on a circumference
+    double angle=2*M_PI/(double)gene_length;
+    cout << "Cities generated on a circumference "<< endl << endl;
+    for (uint i=0; i<gene_length; i++){
+        City city = City(cos(angle*i), sin(angle*i) ,i);
+        cities.push_back(city);
+    }}
+    if(mode == 1){   //Cities inside a square
+    double side = 1;
+    cout << "Cities generated inside a square "<< endl << endl;
+    for (uint i=0; i<gene_length; i++){
+        City city = City(Random()*side, Random()*side ,i);
+        cities.push_back(city);
+    }}
 
 }
 

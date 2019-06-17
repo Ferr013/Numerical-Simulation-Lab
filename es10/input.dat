@@ -1,0 +1,13 @@
+42
+50
+1
+500
+50000
+1
+
+    1 ReadInput >> randseed;
+    2 ReadInput >> travel_length;
+    3 ReadInput >> temp_init;
+    4 ReadInput >> temperature_steps;
+    5 ReadInput >> steps_per_T;
+    6 ReadInput >> mode; //How the city are distributed on the map
