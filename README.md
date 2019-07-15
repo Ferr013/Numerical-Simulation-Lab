@@ -2,7 +2,7 @@
 + @author Giovanni Ferrami
 + @e-mail g.ferrami@gmail.com
 
-Each exercise has a dedicated folder, inside it open "LSN_Solution_**.ipynb" to see the commented solution of the assigned exercises (the exercise instructions can be found in "LSN_Exercise_**.ipynb").
+Each exercise has a dedicated folder, inside it open "LSN_Solution_##.ipynb" to see the commented solution of the assigned exercises (the exercise instructions can be found in "LSN_Exercise_##.ipynb").
 Each exercise is implemented in C++ and then the generated data is analyzed in Python3 through the notebooks uploaded here.
 
 
