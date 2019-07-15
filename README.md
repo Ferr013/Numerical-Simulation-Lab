@@ -2,7 +2,7 @@
 + @author Giovanni Ferrami
 + @e-mail g.ferrami@gmail.com
 
-Open the .ipynb to see the commented solution of the assigned exercises.
+Each exercise has a dedicated folder, inside it open "LSN_Solution_**.ipynb" to see the commented solution of the assigned exercises (the exercise instructions can be found in "LSN_Exercise_**.ipynb").
 Each exercise is implemented in C++ and then the generated data is analyzed in Python3 through the notebooks uploaded here.
 
 
@@ -25,6 +25,15 @@ Here's a list of the exercises with a brief comment on what they are about:
 - Ex06: 
         1-D Ising model simulated through Metropolis and Gibbs sampling algorithms. Evaluating some termodynamic parameter confronting the two algos with the analitic solution.
 - Ex07: 
+        Monte Carlo NVT applied to the same Molecular Dynamics system analyzed in ex04.
 - Ex08: 
+        Variational Monte Carlo code for a single quantum particle in 1D which exploits the Metropolis algorithm to sample a trial wave function $|\Psi_T(x)|^2$
 - Ex09: 
+        Solving the Traveling Salesman Problem (TSP) through a genetic algorithm written from scratch in C++
 - Ex10: 
+        Adapting the Genetic Algorithm code, developed during the Numerical Exercise 9, to solve the TSP with a Simulated Annealing (SA) algorithm.
+        In the second part we converted the SA algorithm from serial to parallel computing, testing the performances of a multi-CPU code.
+- Ex11:
+        Performing machine learning regression on noisy data with a Neural Network (NN) (*only python)
+- Ex12:
+        Using deep convolutional neural network models, implemented in the Keras python package, to recognize and distinguish between the ten handwritten digits (0-9) (*only python)

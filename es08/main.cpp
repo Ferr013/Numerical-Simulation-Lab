@@ -53,6 +53,15 @@ int main (int argc, char *argv[]){
     double sigma = 0.6;
     int searching_parameters = 1; //DA USARE PER STIMARE MU E SIGMA, METTERE A ZERO PER AVERE DATA BLOCKING SUI VALORI MIGLIORI
 
+    int nbins = 100;
+    int istogrammi[nbins][N];   //questa matrice contiene in ogni riga l'istogramma riferito ad un singolo blocco
+    
+    for(int i=0; i<nbins; i++){
+        for(int j=0; j<N; j++){
+            istogrammi[i][j] = 0;
+        }
+    }
+
     for(int i=0; i<N;i++){
 		ave[i]=0;av2[i]=0;sum_prog[i]=0;su2_prog[i]=0;err_prog[i]=0;
 	}
@@ -91,6 +100,7 @@ int main (int argc, char *argv[]){
     }
     cout << "Evaluating energy with data blocking " << endl;
     ofstream out1("Energy.dat");
+    ofstream out("Hist.dat");
     int attempts=0, accepted=0;
     double x,x_new,mean;
     for(int j = 0; j < N; j++)
@@ -107,6 +117,10 @@ int main (int argc, char *argv[]){
             }
             attempts++;
             mean += (-Psi_2(x,mu,sigma)*0.5 + V(x)*Psi(x,mu,sigma))/(Psi(x,mu,sigma));
+
+            int index;
+            index = int((x+2.5)/0.05);
+            istogrammi[index][j]++;
         }
         cout << "Acceptance : " << (double)(accepted)/(double)(attempts) << " %"<< endl;
 
@@ -127,6 +141,38 @@ int main (int argc, char *argv[]){
     }
     cout << "Energy : " <<  sum_prog[N-1]<< endl;
     out1.close();
+    out1.clear();
+    
+    for(int i=0; i<N; i++){
+        sum_prog[i] = 0;
+        su2_prog[i] = 0;
+        err_prog[i] = 0;
+    }
+
+    cout << "HISTOGRAM DATA BLOCKING" << endl << endl;
+    
+    for(int ibin=0; ibin<nbins; ibin++){
+        for(int i=0; i<N; i++){
+            sum_prog[i] = 0;
+            su2_prog[i] = 0;
+            err_prog[i] = 0;
+        }
+        for(int i=0; i<N; i++){
+            for(int j=0; j<i+1; j++){
+                sum_prog[i] = sum_prog[i] + istogrammi[ibin][j];
+                su2_prog[i] = su2_prog[i] + istogrammi[ibin][j]*istogrammi[ibin][j];
+            }
+            
+            sum_prog[i] = sum_prog[i]/(double)(i+1);
+            su2_prog[i] = su2_prog[i]/(double)(i+1);
+            err_prog[i] = error(sum_prog[i],su2_prog[i],i);
+            if(i == N-1){
+                out << (-2.5+0.025)+(ibin*0.05) <<"   "<< sum_prog[i]/(double(M/N)*0.05) <<"   "<< err_prog[i]/(double(M/N)*0.05) << endl;
+            }
+        }
+    }
+    out.close();
+    out.clear();
     rnd.SaveSeed();
     return 0;
 }

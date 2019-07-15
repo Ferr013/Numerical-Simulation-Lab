@@ -45,11 +45,14 @@ int main (int argc, char *argv[]){
 
 
 //es5.1 from here ---------------------------------------------------------
+    //I've changed the transition probablity to a Gaussian one, modifing also the output file name.
     int M=100000; int N=100; int L=M/N;
 	double ave[N],av2[N],sum_prog[N],su2_prog[N],err_prog[N];
+    double delta_0_g = 0.75;
+    double delta_1_g = 1.85;
 
-	ofstream out1("1s_ave.dat");
-    ofstream out2("2p_ave.dat");
+	ofstream out1("1s_ave_gauss.dat");
+    ofstream out2("2p_ave_gauss.dat");
 
     for(int i=0; i<N;i++){
 		ave[i]=0;av2[i]=0;sum_prog[i]=0;su2_prog[i]=0;err_prog[i]=0;
@@ -63,9 +66,13 @@ int main (int argc, char *argv[]){
         double step = 1.2;
         x = 0.; y = 0. ; z = 0.;
         for(int i=0; i<L;i++){
-            x_new = x + (rnd.Rannyu()-0.5)*2*step;
-            y_new = y + (rnd.Rannyu()-0.5)*2*step;
-            z_new = z + (rnd.Rannyu()-0.5)*2*step;
+            //x_new = x + (rnd.Rannyu()-0.5)*2*step;
+            //y_new = y + (rnd.Rannyu()-0.5)*2*step;
+            //z_new = z + (rnd.Rannyu()-0.5)*2*step;
+
+            x_new = rnd.Gauss(x,delta_0_g);
+            y_new = rnd.Gauss(y,delta_0_g);
+            z_new = rnd.Gauss(z,delta_0_g);
 
             double acc = min(1.,S(x_new,y_new,z_new)/S(x,y,z));
             if(acc == 1 || acc>rnd.Rannyu()){
@@ -100,9 +107,13 @@ int main (int argc, char *argv[]){
         double step = 3.;
         x = 0.; y = 0. ; z = 2.5;
         for(int i=0; i<L;i++){
-            x_new = x + (rnd.Rannyu()-0.5)*2*step;
-            y_new = y + (rnd.Rannyu()-0.5)*2*step;
-            z_new = z + (rnd.Rannyu()-0.5)*2*step;
+            //x_new = x + (rnd.Rannyu()-0.5)*2*step;
+            //y_new = y + (rnd.Rannyu()-0.5)*2*step;
+            //z_new = z + (rnd.Rannyu()-0.5)*2*step;
+
+            x_new = rnd.Gauss(x,delta_1_g);
+            y_new = rnd.Gauss(y,delta_1_g);
+            z_new = rnd.Gauss(z,delta_1_g);
 
             double acc = min(1.,P(x_new,y_new,z_new)/P(x,y,z));
             if(acc == 1 || acc>rnd.Rannyu()){
